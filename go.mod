@@ -1,4 +1,4 @@
-module github.com/dsawma/Sentinel-
+module github.com/dsawma/terminal_chatroom
 
 go 1.24.4
 
@@ -9,7 +9,8 @@ require (
 )
 
 require (
-	github.com/golang-jwt/jwt/v4 v4.5.2
+	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.11.2
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )

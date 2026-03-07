@@ -1,16 +1,16 @@
 package routing
 
 const (
-	ArmyMovesPrefix = "army_moves"
+	SendsMsg = "sends_msg"
 
-	WarRecognitionsPrefix = "war"
+	JoinedChatRoom = "joined"
 
 	PauseKey = "pause"
 
-	GameLogSlug = "game_logs"
+	ChatLogSlug = "chat_logs"
 )
 
 const (
-	ExchangePerilDirect = "peril_direct"
-	ExchangePerilTopic  = "peril_topic"
+	ExchangeChatDirect = "chat_direct"
+	ExchangeChatTopic  = "chat_topic"
 )

@@ -24,21 +24,21 @@ func DeclareAndBind(
 	}
 	queue := amqp.Queue{}
 	switch queueType{
-	case DurableQueue: 
-		queue, err = channel.QueueDeclare(
-		queueName, true, false, false, false, amqp.Table{"x-dead-letter-exchange": "peril_dlx"})
-		if err != nil {
-			return nil,amqp.Queue{} , err
-		}
+		case DurableQueue: 
+			queue, err = channel.QueueDeclare(
+			queueName, true, false, false, false, amqp.Table{"x-dead-letter-exchange": "chat_dlx"})
+			if err != nil {
+				return nil,amqp.Queue{} , err
+			}
 
-	case TransientQueue:
-		queue, err = channel.QueueDeclare(
-		queueName, false, true, true, false, amqp.Table{"x-dead-letter-exchange": "peril_dlx"})
-		if err != nil {
-			return nil, amqp.Queue{}, err
-		}
+		case TransientQueue:
+			queue, err = channel.QueueDeclare(
+			queueName, false, true, true, false, amqp.Table{"x-dead-letter-exchange": "chat_dlx"})
+			if err != nil {
+				return nil, amqp.Queue{}, err
+			}
 	}
-	err = channel.QueueBind(queueName, key,exchange, false, nil )
+	err = channel.QueueBind(queueName, key, exchange, false, nil )
 	if err != nil {
 		return nil, amqp.Queue{}, err
 	}

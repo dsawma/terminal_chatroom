@@ -6,6 +6,7 @@ import (
 
 	"github.com/dsawma/terminal_chatroom/internal/auth"
 	"github.com/dsawma/terminal_chatroom/internal/pubsub"
+	"github.com/dsawma/terminal_chatroom/internal/routing"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -23,7 +24,7 @@ func main() {
 		log.Fatalf("could not create channel: %v", err)
 	}
 	fmt.Println("Connection Successful")
-	err = pubsub.SubscribeGob(connection, routing.ExchangePerilTopic,"game_logs" , routing.GameLogSlug + ".*", pubsub.DurableQueue, handlerLogs())
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic,"game_logs" , routing.ChatLogSlug + ".*", pubsub.DurableQueue, handlerLogs())
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)
 	}
@@ -40,13 +41,13 @@ func main() {
 			switch strSlice[0] {
 			case "pause":
 				fmt.Println("sending a pause message")
-				err = pubsub.PublishGob(channel, routing.ExchangePerilDirect, routing.PauseKey,routing.PlayingState{IsPaused:true,}, ) 
+				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PlayingState{IsPaused:true,}, ) 
 				if err != nil {
 					log.Fatalf("could not publish JSON: %v", err)
 				}
 			case "resume":
 				fmt.Println("sending a resume message")
-				err = pubsub.PublishGob(channel, routing.ExchangePerilDirect, routing.PauseKey,routing.PlayingState{IsPaused:false,}, ) 
+				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PlayingState{IsPaused:false,}, ) 
 				if err != nil {
 					log.Fatalf("could not publish JSON: %v", err)
 				}

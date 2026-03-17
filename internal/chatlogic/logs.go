@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"time"
-
 	"github.com/dsawma/terminal_chatroom/internal/routing"
 )
 
@@ -13,8 +12,8 @@ const logsFile = "game.log"
 
 const writeToDiskSleep = 1 * time.Second
 
-func WriteLog(gamelog routing.ChatLog) error {
-	log.Printf("received game log...")
+func WriteLog(chatlog routing.ChatLog) error {
+	log.Printf("received chat log...")
 	time.Sleep(writeToDiskSleep)
 
 	f, err := os.OpenFile(logsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -23,7 +22,7 @@ func WriteLog(gamelog routing.ChatLog) error {
 	}
 	defer f.Close()
 
-	str := fmt.Sprintf("%v %v: %v\n", gamelog.CurrentTime.Format(time.RFC3339), gamelog.Username, gamelog.Message)
+	str := fmt.Sprintf("%v %v: %v\n", chatlog.CurrentTime.Format(time.RFC3339), chatlog.Username, chatlog.Message)
 	_, err = f.WriteString(str)
 	if err != nil {
 		return fmt.Errorf("could not write to logs file: %v", err)

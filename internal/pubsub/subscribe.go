@@ -23,7 +23,7 @@ func SubscribeGob[T any](
     queueType SimpleQueueType,
     handler func(T) AckType,
 ) error {
-	return subscribe[T](
+	return subscribe(
 		conn,
 		exchange,
 		queueName,

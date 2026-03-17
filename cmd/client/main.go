@@ -10,9 +10,12 @@ import (
 
 	"github.com/dsawma/terminal_chatroom/internal/auth"
 	"github.com/dsawma/terminal_chatroom/internal/database"
-	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/dsawma/terminal_chatroom/internal/pubsub"
+	"github.com/dsawma/terminal_chatroom/internal/chatlogic"
+	"github.com/dsawma/terminal_chatroom/internal/routing"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
@@ -36,7 +39,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err = auth.Login(ctx, q)
+	userName, err := auth.Login(ctx, q)
 	if err != nil {
 		log.Fatalf("Could not find User: %v", err)
 	}
@@ -56,5 +59,19 @@ func main() {
 	}
 	defer ch.Close()
 
+	chatState := chatlogic.NewChatState(userName, )
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatDirect, "pause." +userName, routing.PauseKey,pubsub.TransientQueue, handlerPause(chatState) )
+	if err != nil {
+		log.Fatalf("could not make queue: %v", err)
+	}
+
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "." +userName, "sends_msg.*",pubsub.TransientQueue, handlerMessage(chatState, ch) )
+	if err != nil {
+		log.Fatalf("could not make queue: %v", err)
+	}
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "join",routing.JoinedChatRoom + ".*" ,pubsub.DurableQueue, handlerWar(chatState, ch) )
+	if err != nil {
+		log.Fatalf("could not make queue: %v", err)
+	}
 
 }

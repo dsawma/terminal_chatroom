@@ -43,13 +43,13 @@ func main() {
 				fmt.Println("sending a pause message")
 				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:true,}, ) 
 				if err != nil {
-					log.Fatalf("could not publish JSON: %v", err)
+					log.Fatalf("could not publish Gob: %v", err)
 				}
 			case "resume":
 				fmt.Println("sending a resume message")
 				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:false,}, ) 
 				if err != nil {
-					log.Fatalf("could not publish JSON: %v", err)
+					log.Fatalf("could not publish Gob: %v", err)
 				}
 			case "quit":
 				fmt.Println("exiting program")

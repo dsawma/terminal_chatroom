@@ -14,7 +14,7 @@ import (
 const deleteRoom = `-- name: DeleteRoom :one
 DELETE FROM room
 WHERE id = $1
-RETURNING id, created_at, updated_at, room_name, owner_id
+RETURNING id, created_at, updated_at, room_name
 `
 
 func (q *Queries) DeleteRoom(ctx context.Context, id uuid.UUID) (Room, error) {
@@ -25,7 +25,6 @@ func (q *Queries) DeleteRoom(ctx context.Context, id uuid.UUID) (Room, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.RoomName,
-		&i.OwnerID,
 	)
 	return i, err
 }

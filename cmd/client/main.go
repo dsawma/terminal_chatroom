@@ -58,8 +58,12 @@ func main() {
 		log.Fatalf("could not open channel: %v", err)
 	}
 	defer ch.Close()
+	roomName,err := auth.JoinRoom(ctx,q)
+	if err != nil {
+		log.Fatalf("Could not find User: %v", err)
+	}
 
-	chatState := chatlogic.NewChatState(userName, )
+	chatState := chatlogic.NewChatState(userName, roomName)
 	err = pubsub.SubscribeGob(connection, routing.ExchangeChatDirect, "pause." +userName, routing.PauseKey,pubsub.TransientQueue, handlerPause(chatState) )
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)

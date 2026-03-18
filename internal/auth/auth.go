@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/alexedwards/argon2id"
@@ -113,3 +114,66 @@ func GetInput() []string {
 	return strings.Fields(line)
 
 }
+
+
+func JoinRoom(ctx context.Context, q *database.Queries) (string, error) {
+	fmt.Println("CREATE new ChatRoom or JOIN existing?")
+	response_word := GetInput()
+	response := response_word[0]
+	switch response{
+	case "create":
+		fmt.Println("What is the ChatRoom name?")
+		create_word := GetInput()
+		create := create_word[0]
+		room, err := q.CreateRoom(ctx, create)
+		if err == nil{
+			return "", errors.New("Failed to create Room")
+		} else{
+		return room.RoomName, nil
+		}
+	case "join":
+		lstRooms,err := q.GetAllRoomNames(ctx)
+		if err == nil{
+			return "", errors.New("Failed to fetch rooms")
+		}
+		fmt.Println("Available Rooms:")
+		for i, room := range lstRooms{
+			fmt.Println("%d. %s", i + 1, room)
+		}
+		fmt.Println("JOIN or CREATE a new room")
+		newResp_word := GetInput()
+		newResp := newResp_word[0]
+		switch newResp{
+		case "join":
+			fmt.Println("Type the Room Number to join")
+			roomNum_word:= GetInput()
+			roomNum := roomNum_word[0]
+			num, err := strconv.Atoi(roomNum)
+			if err != nil{
+				return "", errors.New("Failed to get room num")
+			}
+			indexNum := num -1
+			if indexNum >= 0 && indexNum <= len(lstRooms) -1{
+				return lstRooms[indexNum], nil
+			}else{
+				return "", errors.New("Invalid range of Room Number")
+			}
+		case "create":
+			fmt.Println("What is the ChatRoom name?")
+			create_word := GetInput()
+			create := create_word[0]
+			room, err := q.CreateRoom(ctx, create)
+			if err == nil{
+				return "", errors.New("Failed to create Room")
+			}else {
+			return room.RoomName, nil
+			}
+		default:
+			return "", errors.New("Wrong input option")
+		}
+
+	default:
+		return "", errors.New("Wrong input option")
+	}
+}
+

@@ -24,13 +24,6 @@ type Room struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	RoomName  string
-	OwnerID   uuid.UUID
-}
-
-type RoomMember struct {
-	RoomID   uuid.UUID
-	UserID   uuid.UUID
-	JoinedAt time.Time
 }
 
 type User struct {

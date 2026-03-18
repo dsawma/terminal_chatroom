@@ -6,7 +6,7 @@ import (
 	"github.com/dsawma/terminal_chatroom/internal/chatlogic"
 	"github.com/dsawma/terminal_chatroom/internal/pubsub"
 	"github.com/dsawma/terminal_chatroom/internal/routing"
-	amqp "github.com/rabbitmq/amqp091-go"
+
 )
 
 func handlerPause(gs *chatlogic.ChatState) func(routing.PlayingState) pubsub.AckType{
@@ -17,28 +17,16 @@ func handlerPause(gs *chatlogic.ChatState) func(routing.PlayingState) pubsub.Ack
 	}
 }
 
-func handlerMove(cs *chatlogic.ChatState, ch *amqp.Channel) func(chatlogic.ArmyMove) pubsub.AckType{
-	return func(move gamelogic.ArmyMove) pubsub.AckType{
-		defer fmt.Print("> ")
-		mv := cs.HandleMove(move)
-		switch mv {
-		case gamelogic.MoveOutComeSafe:
-    		return pubsub.Ack
-		case gamelogic.MoveOutcomeMakeWar:
-			err := pubsub.PublishJSON(ch,routing.ExchangePerilTopic, routing.WarRecognitionsPrefix +"."+ gs.GetUsername(),gamelogic.RecognitionOfWar{
-   				Attacker: move.Player,
-   				Defender: gs.GetPlayerSnap(),
-				},)
-			if err != nil {
-				log.Printf("could not make queue: %v", err)
-				return pubsub.NackRequeue
-			}
-    		return pubsub.Ack
-		case gamelogic.MoveOutcomeSamePlayer:
-    		return pubsub.NackDiscard
-		default:
-    		fmt.Println("error: unknown move outcome")
-    		return pubsub.NackDiscard
-		}
-	}
+func handlerChatMessage(state *chatlogic.ChatState) func(msg chatlogic.Message) pubsub.AckType {
+    return func(msg chatlogic.Message) pubsub.AckType {
+        state.Mu.Lock()
+        defer state.Mu.Unlock()
+        
+        // Only care about messages for the room we are currently in
+        if msg.RoomName == state.CurrentRoomName {
+            state.Chatter.Messages = append(state.Chatter.Messages, msg)
+            fmt.Printf("[%s]: %s\n", msg.Username, msg.Body)
+        }
+        return pubsub.Ack
+    }
 }

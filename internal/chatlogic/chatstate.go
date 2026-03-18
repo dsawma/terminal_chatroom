@@ -2,44 +2,42 @@ package chatlogic
 
 import (
 	"sync"
-
 	"github.com/dsawma/terminal_chatroom/internal/database"
-	"github.com/google/uuid"
 )
 
 type ChatState struct {
 	Chatter Chatter
-	CurrentRoomID uuid.UUID
+	CurrentRoomName string
  	Paused bool
-	mu     *sync.RWMutex
+	Mu     sync.RWMutex
 }
 
-func NewChatState(username string, roomID uuid.UUID) *ChatState {
+func NewChatState(username string, roomName string) *ChatState {
 	return &ChatState{
 		Chatter: Chatter{
 			Username: username,
 			Messages:    []database.Message{},
 		},
-		CurrentRoomID: roomID,
+		CurrentRoomName: roomName,
 		Paused: false,
-		mu:     &sync.RWMutex{},
+		Mu:     sync.RWMutex{},
 	}
 }
 
-func (gs *ChatState) resumeChat() {
-	gs.mu.Lock()
-	defer gs.mu.Unlock()
-	gs.Paused = false
+func (cs *ChatState) resumeChat() {
+	cs.Mu.Lock()
+	defer cs.Mu.Unlock()
+	cs.Paused = false
 }
 
-func (gs *ChatState) pauseChat() {
-	gs.mu.Lock()
-	defer gs.mu.Unlock()
-	gs.Paused = true
+func (cs *ChatState) pauseChat() {
+	cs.Mu.Lock()
+	defer cs.Mu.Unlock()
+	cs.Paused = true
 }
 
-func (gs *ChatState) isPaused() bool {
-	gs.mu.RLock()
-	defer gs.mu.RUnlock()
-	return gs.Paused
+func (cs *ChatState) isPaused() bool {
+	cs.Mu.RLock()
+	defer cs.Mu.RUnlock()
+	return cs.Paused
 }

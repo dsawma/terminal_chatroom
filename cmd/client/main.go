@@ -69,13 +69,10 @@ func main() {
 		log.Fatalf("could not make queue: %v", err)
 	}
 
-	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "." +userName, "sends_msg.*",pubsub.TransientQueue, handlerMessage(chatState, ch) )
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "chat_queue." + userName, "sends_msg.*",pubsub.TransientQueue, handlerChatMessage(chatState) )
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)
 	}
-	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "join",routing.JoinedChatRoom + ".*" ,pubsub.DurableQueue, handlerWar(chatState, ch) )
-	if err != nil {
-		log.Fatalf("could not make queue: %v", err)
-	}
+	
 
 }

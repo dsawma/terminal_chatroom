@@ -2,7 +2,6 @@ package chatlogic
 
 import (
 	"sync"
-	"github.com/dsawma/terminal_chatroom/internal/database"
 )
 
 type ChatState struct {
@@ -16,7 +15,7 @@ func NewChatState(username string, roomName string) *ChatState {
 	return &ChatState{
 		Chatter: Chatter{
 			Username: username,
-			Messages:    []database.Message{},
+			Messages:    []Message{},
 		},
 		CurrentRoomName: roomName,
 		Paused: false,

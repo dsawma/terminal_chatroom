@@ -6,7 +6,7 @@ import (
 	"github.com/dsawma/terminal_chatroom/internal/routing"
 )
 
-func (cs *ChatState) HandlePause(ps routing.PlayingState) {
+func (cs *ChatState) HandlePause(ps routing.PauseState) {
 	defer fmt.Println("------------------------")
 	fmt.Println()
 	if ps.IsPaused {

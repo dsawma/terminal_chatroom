@@ -2,7 +2,7 @@ package routing
 
 import "time"
 
-type PlayingState struct {
+type PauseState struct {
 	IsPaused bool
 }
 

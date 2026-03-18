@@ -2,13 +2,11 @@ package chatlogic
 
 import (
 	"time"
-
-	"github.com/dsawma/terminal_chatroom/internal/database"
 )
 
 type Chatter struct{
 	Username string
-	Messages []database.Message
+	Messages []Message
 }
 
 type Message struct {

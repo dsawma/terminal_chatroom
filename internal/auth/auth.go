@@ -138,7 +138,7 @@ func JoinRoom(ctx context.Context, q *database.Queries) (string, error) {
 		}
 		fmt.Println("Available Rooms:")
 		for i, room := range lstRooms{
-			fmt.Println("%d. %s", i + 1, room)
+			fmt.Printf("%d. %s\n", i + 1, room)
 		}
 		fmt.Println("JOIN or CREATE a new room")
 		newResp_word := GetInput()

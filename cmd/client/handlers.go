@@ -9,10 +9,10 @@ import (
 
 )
 
-func handlerPause(gs *chatlogic.ChatState) func(routing.PlayingState) pubsub.AckType{
-	return func(ps routing.PlayingState) pubsub.AckType{
+func handlerPause(cs *chatlogic.ChatState) func(routing.PauseState) pubsub.AckType{
+	return func(ps routing.PauseState) pubsub.AckType{
 		defer fmt.Print("> ")
-		gs.HandlePause(ps)
+		cs.HandlePause(ps)
 		return pubsub.Ack
 	}
 }
@@ -21,8 +21,7 @@ func handlerChatMessage(state *chatlogic.ChatState) func(msg chatlogic.Message) 
     return func(msg chatlogic.Message) pubsub.AckType {
         state.Mu.Lock()
         defer state.Mu.Unlock()
-        
-        // Only care about messages for the room we are currently in
+    
         if msg.RoomName == state.CurrentRoomName {
             state.Chatter.Messages = append(state.Chatter.Messages, msg)
             fmt.Printf("[%s]: %s\n", msg.Username, msg.Body)

@@ -41,13 +41,13 @@ func main() {
 			switch strSlice[0] {
 			case "pause":
 				fmt.Println("sending a pause message")
-				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PlayingState{IsPaused:true,}, ) 
+				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:true,}, ) 
 				if err != nil {
 					log.Fatalf("could not publish JSON: %v", err)
 				}
 			case "resume":
 				fmt.Println("sending a resume message")
-				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PlayingState{IsPaused:false,}, ) 
+				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:false,}, ) 
 				if err != nil {
 					log.Fatalf("could not publish JSON: %v", err)
 				}

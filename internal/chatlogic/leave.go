@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (cs *ChatState) CommandLeave(words string) (Message, error) {
+func (cs *ChatState) CommandLeave() (Message, error) {
 	if cs.isPaused() {
 		return Message{}, errors.New("chat is paused")
 	}

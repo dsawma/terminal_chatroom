@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("could not create channel: %v", err)
 	}
 	fmt.Println("Connection Successful")
-	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic,"game_logs" , routing.ChatLogSlug + ".*", pubsub.DurableQueue, handlerLogs())
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic,"chat_logs" , routing.ChatLogSlug + ".*", pubsub.DurableQueue, handlerLogs())
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)
 	}

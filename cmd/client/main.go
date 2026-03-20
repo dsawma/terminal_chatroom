@@ -22,7 +22,7 @@ import (
 
 func main() {
 
-	err := godotenv.Load()
+	err := godotenv.Load("../../.env")
     if err != nil {
         log.Fatal("Error loading .env file")
     }
@@ -40,6 +40,10 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	err = db.PingContext(ctx)
+	if err != nil {
+		log.Fatalf("Database connection failed: %v", err)
+	}
 
 	userName, err := auth.Login(ctx, q)
 	if err != nil {
@@ -80,7 +84,10 @@ func main() {
 		Body: fmt.Sprintf("%s has joined the chat", chatState.Chatter.Username),
 		RoomName: chatState.CurrentRoomName,
 	}
-	pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
+	err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
+	if err != nil {
+		log.Printf("could not make queue: %v", err)
+	}
 	fmt.Println("To exit chat: /quit")
 	fmt.Println("To join a different chatroom: /join [roomName]")
 	fmt.Println("-------------------------------------------------")
@@ -96,7 +103,7 @@ func main() {
 			operation := parts[0]
 			switch operation {
 			case "/quit":
-				goodbyeMsg, err := chatState.CommandMessage(input) 
+				goodbyeMsg, err := chatState.CommandLeave()
 				if err != nil {
 					fmt.Printf("cannot send message: %v", err)
 				}
@@ -106,30 +113,31 @@ func main() {
 				}
 				fmt.Println("Goodbye!")
 			case "/join":
-				if len(parts) > 1{
-					lstRooms,err := q.GetAllRoomNames(ctx)
+				if len(parts) == 2{
+					newRoom,err := q.GetRoomByRoomName(ctx, parts[1])
 					if err == nil{
-						fmt.Println("Failed to fetch rooms")
+						fmt.Println("Room not Found")
 					}
-					found := false
-					for _, room := range lstRooms{
-						if room == parts[1]{
-							goodbyeMsg, err := chatState.CommandMessage(input) 
-							if err != nil {
-								fmt.Printf("cannot send message: %v", err)
-							}
-							err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", goodbyeMsg)
-							if err != nil {
-								log.Printf("could not make queue: %v", err)
-							}
-							found = true
-							chatState.CurrentRoomName = parts[1]
-							fmt.Printf("Joining room: %s\n", parts[1])
-						}
-					} 
-					if !found{
-						fmt.Println("Unknown room")
+					goodbyeMsg, err := chatState.CommandLeave() 
+					if err != nil {
+						fmt.Printf("cannot send message: %v", err)
 					}
+					err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", goodbyeMsg)
+					if err != nil {
+						log.Printf("could not make queue: %v", err)
+					}
+					chatState.CurrentRoomName = newRoom
+					HelloMsg := chatlogic.Message{
+						Username: "System",
+						Body: fmt.Sprintf("%s has joined the chat", chatState.Chatter.Username),
+						RoomName: chatState.CurrentRoomName,
+					}
+					err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
+					if err != nil {
+						log.Printf("could not make queue: %v", err)
+					}
+				} else{
+					fmt.Println("Incorrect join command")
 				}
 			default: 
 				fmt.Println("Unknown command")

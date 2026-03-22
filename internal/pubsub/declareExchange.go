@@ -5,10 +5,10 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func DeclareExchange(ch *amqp.Channel, exchangeName string) error {
+func DeclareExchange(ch *amqp.Channel,name, exchangeType string) error {
     return ch.ExchangeDeclare(
-        exchangeName, // name
-        "topic",      // type (match this to your routing!)
+        name,
+        exchangeType,   
         true,         // durable
         false,        // auto-deleted
         false,        // internal

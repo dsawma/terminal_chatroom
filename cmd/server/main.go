@@ -25,9 +25,14 @@ func main() {
 	}
 	fmt.Println("Connection Successful")
 
-	err = pubsub.DeclareExchange(channel, routing.ExchangeChatTopic)
+	err = pubsub.DeclareExchange(channel, routing.ExchangeChatTopic, "topic")
 	if err != nil {
-		log.Fatalf("could not declare exchange: %v", err)
+		log.Fatalf("could not declare topic exchange: %v", err)
+	}
+
+	err = pubsub.DeclareExchange(channel, routing.ExchangeChatDirect, "direct")
+	if err != nil {
+		log.Fatalf("could not declare direct exchange: %v", err)
 	}
 
 	fmt.Println("Exchange created successfully!")

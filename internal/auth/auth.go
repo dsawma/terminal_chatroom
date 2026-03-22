@@ -42,6 +42,8 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 		if err != nil {
 			return "", errors.New("Incorrect Username or Password")
 		}
+		fmt.Printf("DEBUG: Comparing password [%s] with hash [%s]\n", password, user.HashedPassword)
+
 		valid, err := CheckPasswordHash(password, user.HashedPassword)
 		if err != nil || !valid {
 			return "", errors.New("Incorrect Username or Password")
@@ -86,7 +88,14 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 
 }
 func HashPassword(password string) (string, error) {
-	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
+	
+	hash, err := argon2id.CreateHash(password, &argon2id.Params{
+		Memory:      64 * 1024,
+		Iterations:  3,
+		Parallelism: 2, 
+		SaltLength:  16,
+		KeyLength:   32,
+	})
 	if err != nil {
 		log.Printf("DEBUG: Database error: %v", err)
 		return "", err

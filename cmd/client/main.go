@@ -45,13 +45,16 @@ func main() {
 		log.Fatalf("Database connection failed: %v", err)
 	}
 
-	userName, err := auth.Login(ctx, q)
+	userName, err := auth.Login(context.Background(), q)
 	if err != nil {
 		log.Fatalf("Could not find User: %v", err)
 	}
 
 	fmt.Println("Starting Chat client...")
-	connectStr := "amqp://guest:guest@localhost:5672/"
+	connectStr := os.Getenv("RABBIT_URL")
+	if connectStr == "" {
+		log.Fatal("RABBIT_URL is missing")
+	}
 	connection, err := amqp.Dial(connectStr)
 	if err != nil {
 		log.Fatalf("Could not create connection: %v", err)
@@ -64,7 +67,7 @@ func main() {
 		log.Fatalf("could not open channel: %v", err)
 	}
 	defer ch.Close()
-	roomName,err := auth.JoinRoom(ctx,q)
+	roomName,err := auth.JoinRoom(context.Background(),q)
 	if err != nil {
 		log.Fatalf("Could not find User: %v", err)
 	}
@@ -81,7 +84,7 @@ func main() {
 	}
 	HelloMsg := chatlogic.Message{
 		Username: "System",
-		Body: fmt.Sprintf("%s has joined the chat", chatState.Chatter.Username),
+		Body: fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
 		RoomName: chatState.CurrentRoomName,
 	}
 	err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
@@ -129,7 +132,7 @@ func main() {
 					chatState.CurrentRoomName = newRoom
 					HelloMsg := chatlogic.Message{
 						Username: "System",
-						Body: fmt.Sprintf("%s has joined the chat", chatState.Chatter.Username),
+						Body: fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
 						RoomName: chatState.CurrentRoomName,
 					}
 					err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)

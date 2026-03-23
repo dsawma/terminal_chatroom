@@ -42,7 +42,6 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 		if err != nil {
 			return "", errors.New("Incorrect Username or Password")
 		}
-		fmt.Printf("DEBUG: Comparing password [%s] with hash [%s]\n", password, user.HashedPassword)
 
 		valid, err := CheckPasswordHash(password, user.HashedPassword)
 		if err != nil || !valid {
@@ -112,7 +111,6 @@ func CheckPasswordHash(password, hash string) (bool, error) {
 }
 
 func GetInput() []string {
-	fmt.Print("> ")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanned := scanner.Scan()
 	if !scanned {

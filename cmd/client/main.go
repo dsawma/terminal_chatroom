@@ -47,7 +47,7 @@ func main() {
 
 	userName, err := auth.Login(context.Background(), q)
 	if err != nil {
-		log.Fatalf("Could not find User: %v", err)
+		log.Fatalf("User Error: %v", err)
 	}
 
 	fmt.Println("Starting Chat client...")
@@ -69,7 +69,7 @@ func main() {
 	defer ch.Close()
 	roomName,err := auth.JoinRoom(context.Background(),q)
 	if err != nil {
-		log.Fatalf("Could not find User: %v", err)
+		log.Fatalf("Room error: %v", err)
 	}
 
 	chatState := chatlogic.NewChatState(userName, roomName)
@@ -91,12 +91,12 @@ func main() {
 	if err != nil {
 		log.Printf("could not make queue: %v", err)
 	}
+
 	fmt.Println("To exit chat: /quit")
 	fmt.Println("To join a different chatroom: /join [roomName]")
 	fmt.Println("-------------------------------------------------")
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("> ")
 		if !scanner.Scan(){
 			break
 		}
@@ -115,6 +115,7 @@ func main() {
 					log.Printf("could not make queue: %v", err)
 				}
 				fmt.Println("Goodbye!")
+				return
 			case "/join":
 				if len(parts) == 2{
 					newRoom,err := q.GetRoomByRoomName(ctx, parts[1])
@@ -153,10 +154,12 @@ func main() {
 			newMsg, err := chatState.CommandMessage(input) 
 			if err != nil {
 				fmt.Printf("cannot send message: %v", err)
-			}
-			err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", newMsg)
-			if err != nil {
-				log.Printf("could not make queue: %v", err)
+			} else{
+				err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", newMsg)
+				if err != nil {
+					log.Printf("could not make queue: %v", err)
+
+				}
 			}
 		}
 

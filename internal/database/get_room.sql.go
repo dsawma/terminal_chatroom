@@ -10,14 +10,19 @@ import (
 )
 
 const getRoomByRoomName = `-- name: GetRoomByRoomName :one
-SELECT room_name
+SELECT id, created_at, updated_at, room_name
 FROM room
 WHERE room_name = $1
 `
 
-func (q *Queries) GetRoomByRoomName(ctx context.Context, roomName string) (string, error) {
+func (q *Queries) GetRoomByRoomName(ctx context.Context, roomName string) (Room, error) {
 	row := q.db.QueryRowContext(ctx, getRoomByRoomName, roomName)
-	var room_name string
-	err := row.Scan(&room_name)
-	return room_name, err
+	var i Room
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.RoomName,
+	)
+	return i, err
 }

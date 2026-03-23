@@ -48,30 +48,30 @@ func main() {
 	fmt.Println("* resume")
 	fmt.Println("* quit")
 	for {
-			strSlice := auth.GetInput()
-			if len(strSlice) == 0 {
-				continue
-			}
-			switch strSlice[0] {
-			case "pause":
-				fmt.Println("sending a pause message")
-				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:true,}, ) 
-				if err != nil {
-					log.Fatalf("could not publish Gob: %v", err)
-				}
-			case "resume":
-				fmt.Println("sending a resume message")
-				err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:false,}, ) 
-				if err != nil {
-					log.Fatalf("could not publish Gob: %v", err)
-				}
-			case "quit":
-				fmt.Println("exiting program")
-				return
-			default:
-				fmt.Println("dont understand command")
-			}
+		fmt.Print("> ")
+		strSlice := auth.GetInput()
+		if len(strSlice) == 0 {
+			continue
 		}
-
+		switch strSlice[0] {
+		case "pause":
+			fmt.Println("sending a pause message")
+			err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:true,}, ) 
+			if err != nil {
+				log.Fatalf("could not publish Gob: %v", err)
+			}
+		case "resume":
+			fmt.Println("sending a resume message")
+			err = pubsub.PublishGob(channel, routing.ExchangeChatDirect, routing.PauseKey,routing.PauseState{IsPaused:false,}, ) 
+			if err != nil {
+				log.Fatalf("could not publish Gob: %v", err)
+			}
+		case "quit":
+			fmt.Println("exiting program")
+			return
+		default:
+			fmt.Println("dont understand command")
+		}
+	}
 
 }

@@ -23,9 +23,9 @@ import (
 func main() {
 
 	err := godotenv.Load("../../.env")
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
@@ -67,24 +67,24 @@ func main() {
 		log.Fatalf("could not open channel: %v", err)
 	}
 	defer ch.Close()
-	roomName,err := auth.JoinRoom(context.Background(),q)
+	roomName, err := auth.JoinRoom(context.Background(), q)
 	if err != nil {
 		log.Fatalf("Room error: %v", err)
 	}
 
 	chatState := chatlogic.NewChatState(userName, roomName)
-	err = pubsub.SubscribeGob(connection, routing.ExchangeChatDirect, "pause." +userName, routing.PauseKey,pubsub.TransientQueue, handlerPause(chatState) )
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatDirect, "pause."+userName, routing.PauseKey, pubsub.TransientQueue, handlerPause(chatState))
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)
 	}
 
-	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "chat_queue." + userName, "sends_msg.*",pubsub.TransientQueue, handlerChatMessage(chatState) )
+	err = pubsub.SubscribeGob(connection, routing.ExchangeChatTopic, "chat_queue."+userName, "sends_msg.*", pubsub.TransientQueue, handlerChatMessage(chatState))
 	if err != nil {
 		log.Fatalf("could not make queue: %v", err)
 	}
 	HelloMsg := chatlogic.Message{
 		Username: "System",
-		Body: fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
+		Body:     fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
 		RoomName: chatState.CurrentRoomName,
 	}
 	err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
@@ -97,11 +97,11 @@ func main() {
 	fmt.Println("-------------------------------------------------")
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		if !scanner.Scan(){
+		if !scanner.Scan() {
 			break
 		}
 		input := scanner.Text()
-		if strings.HasPrefix(input, "/"){
+		if strings.HasPrefix(input, "/") {
 			parts := strings.Split(input, " ")
 			operation := parts[0]
 			switch operation {
@@ -110,19 +110,20 @@ func main() {
 				if err != nil {
 					fmt.Printf("cannot send message: %v", err)
 				}
-				err =pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", goodbyeMsg)
+				err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", goodbyeMsg)
 				if err != nil {
 					log.Printf("could not make queue: %v", err)
 				}
 				fmt.Println("Goodbye!")
 				return
 			case "/join":
-				if len(parts) == 2{
-					newRoom,err := q.GetRoomByRoomName(ctx, parts[1])
-					if err == nil{
+				if len(parts) == 2 {
+					newRoom, err := q.GetRoomByRoomName(context.Background(), parts[1])
+					if err != nil {
 						fmt.Println("Room not Found")
+						continue
 					}
-					goodbyeMsg, err := chatState.CommandLeave() 
+					goodbyeMsg, err := chatState.CommandLeave()
 					if err != nil {
 						fmt.Printf("cannot send message: %v", err)
 					}
@@ -130,31 +131,31 @@ func main() {
 					if err != nil {
 						log.Printf("could not make queue: %v", err)
 					}
-					chatState.CurrentRoomName = newRoom
+					chatState.CurrentRoomName = newRoom.RoomName
 					HelloMsg := chatlogic.Message{
 						Username: "System",
-						Body: fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
+						Body:     fmt.Sprintf("%s has joined the chat: %s", chatState.Chatter.Username, chatState.CurrentRoomName),
 						RoomName: chatState.CurrentRoomName,
 					}
 					err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", HelloMsg)
 					if err != nil {
 						log.Printf("could not make queue: %v", err)
 					}
-				} else{
+				} else {
 					fmt.Println("Incorrect join command")
 				}
-			default: 
+			default:
 				fmt.Println("Unknown command")
 				fmt.Println("To exit chat: /quit")
 				fmt.Println("To join a different chatroom: /join [roomName]")
 			}
 			continue
 
-		}else{
-			newMsg, err := chatState.CommandMessage(input) 
+		} else {
+			newMsg, err := chatState.CommandMessage(input)
 			if err != nil {
 				fmt.Printf("cannot send message: %v", err)
-			} else{
+			} else {
 				err = pubsub.PublishGob(ch, routing.ExchangeChatTopic, "sends_msg.*", newMsg)
 				if err != nil {
 					log.Printf("could not make queue: %v", err)

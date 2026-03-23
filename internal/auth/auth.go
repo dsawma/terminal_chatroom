@@ -16,15 +16,15 @@ import (
 
 func Login(ctx context.Context, q *database.Queries) (string, error) {
 	fmt.Println("Welcome")
-	fmt.Println("Login or Signup")
+	fmt.Println("Login or Sign-up")
 	register_words := GetInput()
 	if len(register_words) == 0 {
 		return "", errors.New("you must enter an option. goodbye")
 	}
-	register := register_words[0]
+	register := strings.ToLower(register_words[0])
 
 	switch register {
-	case "Login":
+	case "login":
 		fmt.Println("Please enter your username:")
 		u_words := GetInput()
 		if len(u_words) == 0 {
@@ -49,7 +49,7 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 		}
 		return user.Username, nil
 
-	case "Signup":
+	case "signup", "sign-up":
 		fmt.Println("Please enter your username:")
 		u_words := GetInput()
 		if len(u_words) == 0 {
@@ -64,9 +64,9 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 		password := p_words[0]
 
 		_, err := q.GetUserByUsername(ctx, username)
-		if err == nil{
+		if err == nil {
 			return "", errors.New("User already exist")
-			
+
 		}
 
 		hashed_password, err := HashPassword(password)
@@ -76,8 +76,8 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 
 		user, err := q.CreateUser(ctx, database.CreateUserParams{Username: username, HashedPassword: hashed_password})
 		if err != nil {
-			fmt.Println("DB ERROR:", err) 
-        	return "", err
+			fmt.Println("DB ERROR:", err)
+			return "", err
 		}
 		return user.Username, nil
 	default:
@@ -86,12 +86,13 @@ func Login(ctx context.Context, q *database.Queries) (string, error) {
 	}
 
 }
+
 func HashPassword(password string) (string, error) {
-	
+
 	hash, err := argon2id.CreateHash(password, &argon2id.Params{
 		Memory:      64 * 1024,
 		Iterations:  3,
-		Parallelism: 2, 
+		Parallelism: 2,
 		SaltLength:  16,
 		KeyLength:   32,
 	})
@@ -122,65 +123,81 @@ func GetInput() []string {
 
 }
 
-
 func JoinRoom(ctx context.Context, q *database.Queries) (string, error) {
 	fmt.Println("CREATE new ChatRoom or JOIN existing?")
 	response_word := GetInput()
-	response := response_word[0]
-	switch response{
+	if len(response_word) == 0 {
+		return "", errors.New("you must enter an option. goodbye")
+	}
+	response := strings.ToLower(response_word[0])
+	switch response {
 	case "create":
 		fmt.Println("What is the ChatRoom name?")
 		create_word := GetInput()
 		create := create_word[0]
 		room, err := q.CreateRoom(ctx, create)
-		if err == nil{
+		if err != nil {
 			return "", errors.New("Failed to create Room")
-		} else{
-		return room.RoomName, nil
+		} else {
+			return room.RoomName, nil
 		}
 	case "join":
-		lstRooms,err := q.GetAllRoomNames(ctx)
-		if err == nil{
+		lstRooms, err := q.GetAllRoomNames(ctx)
+		if err != nil {
 			return "", errors.New("Failed to fetch rooms")
 		}
 		fmt.Println("Available Rooms:")
-		for i, room := range lstRooms{
-			fmt.Printf("%d. %s\n", i + 1, room)
-		}
-		fmt.Println("JOIN or CREATE a new room")
-		newResp_word := GetInput()
-		newResp := newResp_word[0]
-		switch newResp{
-		case "join":
-			fmt.Println("Type the Room Number to join")
-			roomNum_word:= GetInput()
-			roomNum := roomNum_word[0]
-			num, err := strconv.Atoi(roomNum)
-			if err != nil{
-				return "", errors.New("Failed to get room num")
-			}
-			indexNum := num -1
-			if indexNum >= 0 && indexNum <= len(lstRooms) -1{
-				return lstRooms[indexNum], nil
-			}else{
-				return "", errors.New("Invalid range of Room Number")
-			}
-		case "create":
+		if len(lstRooms) == 0 {
+			fmt.Println("* No rooms *")
+			fmt.Println("Lets create a new Chatroom")
 			fmt.Println("What is the ChatRoom name?")
 			create_word := GetInput()
 			create := create_word[0]
 			room, err := q.CreateRoom(ctx, create)
-			if err == nil{
+			if err != nil {
 				return "", errors.New("Failed to create Room")
-			}else {
-			return room.RoomName, nil
+			} else {
+				return room.RoomName, nil
 			}
-		default:
-			return "", errors.New("Wrong input option")
+		} else {
+			for i, room := range lstRooms {
+				fmt.Printf("%d. %s\n", i+1, room)
+			}
+			fmt.Println("JOIN or CREATE a new room")
+			newResp_word := GetInput()
+			newResp := strings.ToLower(newResp_word[0])
+			switch newResp {
+			case "join":
+				fmt.Println("Type the Room Number to join")
+				roomNum_word := GetInput()
+				roomNum := roomNum_word[0]
+				num, err := strconv.Atoi(roomNum)
+				if err != nil {
+					return "", errors.New("Failed to get room num")
+				}
+
+				indexNum := num - 1
+				if indexNum >= 0 && indexNum <= len(lstRooms)-1 {
+					return lstRooms[indexNum], nil
+				} else {
+					return "", errors.New("Invalid range of Room Number")
+				}
+			case "create":
+				fmt.Println("What is the ChatRoom name?")
+				create_word := GetInput()
+				create := create_word[0]
+				room, err := q.CreateRoom(ctx, create)
+				if err != nil {
+					return "", errors.New("Failed to create Room")
+				} else {
+					return room.RoomName, nil
+				}
+			default:
+				return "", errors.New("Wrong input option")
+			}
 		}
 
 	default:
 		return "", errors.New("Wrong input option")
 	}
 }
-

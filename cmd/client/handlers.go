@@ -11,7 +11,6 @@ import (
 
 func handlerPause(cs *chatlogic.ChatState) func(routing.PauseState) pubsub.AckType{
 	return func(ps routing.PauseState) pubsub.AckType{
-		defer fmt.Print("> ")
 		cs.HandlePause(ps)
 		return pubsub.Ack
 	}

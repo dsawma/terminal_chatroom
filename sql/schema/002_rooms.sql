@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE room (
+CREATE TABLE rooms (
     id UUID PRIMARY KEY NOT NULL,
     created_at TIMESTAMP NOT NULL, 
     updated_at TIMESTAMP NOT NULL,
@@ -7,4 +7,4 @@ CREATE TABLE room (
 );
 
 -- +goose Down 
-DROP TABLE room;
+DROP TABLE rooms;

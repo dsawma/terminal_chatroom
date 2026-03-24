@@ -11,7 +11,7 @@ import (
 
 const getRoomByRoomName = `-- name: GetRoomByRoomName :one
 SELECT id, created_at, updated_at, room_name
-FROM room
+FROM rooms
 WHERE room_name = $1
 `
 

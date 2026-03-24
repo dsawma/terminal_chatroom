@@ -1,4 +1,4 @@
 -- name: GetRoomByRoomName :one
 SELECT *
-FROM room
+FROM rooms
 WHERE room_name = $1;

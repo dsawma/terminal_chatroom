@@ -1,4 +1,4 @@
 -- name: DeleteRoom :one
-DELETE FROM room
+DELETE FROM rooms
 WHERE id = $1
 RETURNING *;

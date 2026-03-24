@@ -33,10 +33,13 @@ When connected to rabbitMQ
 
 git clone https://github.com/dsawma/terminal_chatroom
 
-### Create a .env file
-cp .env.example .env
+### Create a .env file(Need to create own Postgres DB_URL)
+cp .env.example .env 
+
 ### Start rabbitMQ with Docker 
 ./rabbitmq.sh
+### Create Postgres Database
+./migrate.sh
 ### build the client and server 
 go build ./cmd/client/main.go
 go build ./cmd/server/main.go

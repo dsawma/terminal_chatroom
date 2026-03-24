@@ -10,7 +10,7 @@ import (
 )
 
 const getAllRoomNames = `-- name: GetAllRoomNames :many
-SELECT room_name FROM room
+SELECT room_name FROM rooms
 `
 
 func (q *Queries) GetAllRoomNames(ctx context.Context) ([]string, error) {

@@ -12,7 +12,7 @@ import (
 )
 
 const deleteRoom = `-- name: DeleteRoom :one
-DELETE FROM room
+DELETE FROM rooms
 WHERE id = $1
 RETURNING id, created_at, updated_at, room_name
 `

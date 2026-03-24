@@ -3,17 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/dsawma/terminal_chatroom/internal/auth"
 	"github.com/dsawma/terminal_chatroom/internal/pubsub"
 	"github.com/dsawma/terminal_chatroom/internal/routing"
+	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 
 func main() {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	connectStr := os.Getenv("RABBIT_URL")
+	if connectStr == "" {
+		log.Fatal("RABBIT_URL is missing")
+	}
 	fmt.Println("Starting Chat server...")
-	connectStr :=  "amqp://guest:guest@localhost:5672/"
 	connection, err := amqp.Dial(connectStr)
 	if err != nil {
 		log.Fatalf("could not create connection: %v", err)

@@ -13,8 +13,15 @@ When inside the chatroom
 - Type anything to send message
 
 # Contributing
+## Prerequisities
+- Docker Desktop
+- Go 1.22+ 
+
 git clone https://github.com/dsawma/terminal_chatroom
-## Start rabbitMQ with Docker
+
+## Create a .env file
+cp .env.example .env
+## Start rabbitMQ with Docker 
 ./rabbitmq.sh
 ## build the client and server 
 go build ./cmd/client/main.go

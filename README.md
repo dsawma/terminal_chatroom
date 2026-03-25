@@ -7,7 +7,7 @@ After learning RabbitMQ and SQL, I wanted to create something that saved prexist
 ## Goals
 * Real-Time Messaging: Leverages Goroutines and RabbitMQ to enable asynchronous, low-latency messaging across multiple concurrent users.
 * Distributed System: Utilizes a Pub-Sub model via RabbitMQ to route messages efficiently to designated chatrooms using topic exchanges.
-* Streamlined Developer Experience: Employs Docker to containerize the infrastructure(PostgreSQL and RabbitMQ), ensuring a consistent setup with a simple CLI interface
+* Streamlined Developer Experience: Employs Docker to containerize the infrastructure(RabbitMQ), ensuring a consistent setup with a simple CLI interface.
 * Persistent Data Storage: Ensures long-term storage of user profiles and rooms using a PostgreSQL relational database.
 * Thread-Safe State Management: Implements Mutexes (sync.RWMutex) to safely manage local application state across multiple background message handlers.
 
